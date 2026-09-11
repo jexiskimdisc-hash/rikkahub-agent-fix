@@ -273,6 +273,12 @@ class RouteActivity : ComponentActivity() {
         val tts = rememberCustomTtsState()
         val asr = rememberCustomAsrState()
         val eventBus = koinInject<AppEventBus>()
+        LaunchedEffect(settings.displaySetting.preferredFrameRate) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // 0 clears the preference and returns control to Android/device policy.
+                window.setFrameRate(settings.displaySetting.preferredFrameRate.toFloat())
+            }
+        }
         LaunchedEffect(tts) {
             eventBus.events.collect { event ->
                 when (event) {
@@ -655,16 +661,6 @@ class RouteActivity : ComponentActivity() {
 
                         }
                     )
-                    if (BuildConfig.DEBUG) {
-                        Text(
-                            text = "[开发模式]",
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .padding(top = 4.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
-                        )
-                    }
                     AnimatedVisibility(
                         visible = migrationState is MigrationState.Migrating,
                         enter = fadeIn(),

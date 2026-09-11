@@ -60,6 +60,8 @@ import org.koin.androidx.compose.koinViewModel
 import java.io.File
 import kotlin.math.roundToInt
 
+private val FRAME_RATE_OPTIONS = listOf(0, 30, 60, 90, 120)
+
 @Composable
 fun SettingPreferencesUIPage(vm: SettingVM = koinViewModel()) {
     val settings by vm.settings.collectAsStateWithLifecycle()
@@ -128,6 +130,21 @@ fun SettingPreferencesUIPage(vm: SettingVM = koinViewModel()) {
                     modifier = Modifier.padding(horizontal = 8.dp),
                     title = { Text(stringResource(R.string.setting_page_message_display_settings)) },
                 ) {
+                    item(
+                        headlineContent = { Text(stringResource(R.string.setting_display_page_frame_rate_title)) },
+                        supportingContent = { Text(stringResource(R.string.setting_display_page_frame_rate_desc)) },
+                        trailingContent = {
+                            Select(
+                                options = FRAME_RATE_OPTIONS,
+                                selectedOption = displaySetting.preferredFrameRate,
+                                onOptionSelected = { updateDisplaySetting(displaySetting.copy(preferredFrameRate = it)) },
+                                optionToString = { rate ->
+                                    if (rate == 0) stringResource(R.string.setting_display_page_frame_rate_auto)
+                                    else "$rate Hz"
+                                },
+                            )
+                        },
+                    )
                     item(
                         headlineContent = { Text(stringResource(R.string.setting_display_page_show_user_avatar_title)) },
                         supportingContent = { Text(stringResource(R.string.setting_display_page_show_user_avatar_desc)) },
