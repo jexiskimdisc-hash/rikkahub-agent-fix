@@ -140,7 +140,7 @@ val dataSourceModule = module {
     // Keystore and the connector is inert until a token is explicitly stored by the settings UI.
     single { GitHubCredentialStore(context = get(), json = get()) }
     single { GitHubConnector(client = get(), credentials = get(), json = get()) }
-    single { GitHubRepositoryService(api = get()) }
+    single { GitHubRepositoryService(api = get(), policy = get()) }
     single { GitHubGrantStore(context = get(), json = get()) }
     single { GitHubAccessPolicy { get<GitHubGrantStore>().read() } }
     single { GitHubConnectionManager(credentials = get(), connector = get()) }
