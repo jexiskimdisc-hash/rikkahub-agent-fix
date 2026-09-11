@@ -274,9 +274,10 @@ class RouteActivity : ComponentActivity() {
         val asr = rememberCustomAsrState()
         val eventBus = koinInject<AppEventBus>()
         LaunchedEffect(settings.displaySetting.preferredFrameRate) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                // 0 clears the preference and returns control to Android/device policy.
-                window.setFrameRate(settings.displaySetting.preferredFrameRate.toFloat())
+            // 0 clears the preference and returns control to Android/device policy. This
+            // window attribute is supported on the Android versions targeted by the app.
+            window.attributes = window.attributes.apply {
+                preferredRefreshRate = settings.displaySetting.preferredFrameRate.toFloat()
             }
         }
         LaunchedEffect(tts) {
