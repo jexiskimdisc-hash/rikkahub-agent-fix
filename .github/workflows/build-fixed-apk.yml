@@ -35,10 +35,18 @@ jobs:
       - name: Build debug APK
         run: ./gradlew :app:assembleDebug --no-daemon
 
+      - name: Select universal APK
+        run: |
+          set -euo pipefail
+          find app/build/outputs/apk -type f -name '*.apk' -print
+          universal=$(find app/build/outputs/apk -type f -name '*universal*.apk' | head -n 1)
+          test -n "$universal"
+          cp "$universal" rikkahub-agent-fixed-universal.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: rikkahub-agent-fixed-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: rikkahub-agent-fixed-universal-apk
+          path: rikkahub-agent-fixed-universal.apk
           if-no-files-found: error
           retention-days: 14
