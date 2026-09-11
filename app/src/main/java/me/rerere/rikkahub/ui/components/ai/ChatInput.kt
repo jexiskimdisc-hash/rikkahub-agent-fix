@@ -79,6 +79,7 @@ import dev.chrisbanes.haze.blur.hazeBlur
 import dev.chrisbanes.haze.blur.material3.Material3
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import me.rerere.ai.provider.Model
 import me.rerere.ai.provider.ModelAbility
 import me.rerere.ai.provider.ModelType
@@ -478,7 +479,11 @@ private fun TextInputRow(
                     text = state.textContent.text.toString(),
                     selection = state.textContent.selection,
                 )
-            }.collectLatest { context ->
+            }
+                // Completion providers may parse or perform I/O. Debouncing avoids starting
+                // one expensive request per keypress and keeps IME rendering responsive.
+                .debounce(80)
+                .collectLatest { context ->
                 val lists = completionProviders.mapNotNull { provider ->
                     try {
                         provider.complete(context)
