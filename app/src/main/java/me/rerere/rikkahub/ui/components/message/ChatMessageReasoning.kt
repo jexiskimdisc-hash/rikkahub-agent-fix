@@ -97,7 +97,9 @@ private fun rememberReasoningState(reasoning: UIMessagePart.Reasoning): Pair<Rea
         if (loading) {
             if (!state.expandState.expanded && settings.displaySetting.showThinkingContent)
                 state.expandState = ReasoningCardState.Preview
-            scrollState.animateScrollTo(scrollState.maxValue)
+            // Streaming updates arrive frequently; an animated scroll restarts on every token
+            // and competes with text layout. Snap to the latest content instead.
+            scrollState.scrollTo(scrollState.maxValue)
         } else {
             if (state.expandState.expanded) {
                 state.expandState = if (settings.displaySetting.autoCloseThinking)
@@ -112,7 +114,7 @@ private fun rememberReasoningState(reasoning: UIMessagePart.Reasoning): Pair<Rea
         if (loading) {
             while (isActive) {
                 state.duration = (reasoning.finishedAt ?: Clock.System.now()) - reasoning.createdAt
-                delay(50)
+                delay(100)
             }
         }
     }

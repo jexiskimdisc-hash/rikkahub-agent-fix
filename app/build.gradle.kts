@@ -21,6 +21,11 @@ android {
         targetSdk = 37
         versionCode = 183
         versionName = "2.4.16"
+        // OAuth App client id is public configuration, not a secret. Keep it injectable so
+        // downstream builds can provide their registered GitHub OAuth App without hard-coding
+        // credentials into source control.
+        val githubOAuthClientId = providers.gradleProperty("githubOAuthClientId").orNull.orEmpty()
+        buildConfigField("String", "GITHUB_OAUTH_CLIENT_ID", "\"$githubOAuthClientId\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

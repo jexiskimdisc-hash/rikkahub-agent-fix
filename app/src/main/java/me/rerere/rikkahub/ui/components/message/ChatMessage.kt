@@ -334,11 +334,10 @@ private fun MessagePartsBlock(
     }
 
     // Render parts in original order (group thinking/tool as chain-of-thought)
-    // Key by size + last-part identity to avoid Compose's O(N) list-comparison on every
-    // recomposition. During streaming the list grows one element at a time so size alone is
-    // sufficient to detect a meaningful change; the lastOrNull() hash catches in-place edits
-    // on the tail part (e.g. streaming text appended to the final Text part).
-    val partsKey = parts.size.toString() + (parts.lastOrNull()?.hashCode()?.toString() ?: "")
+    // Include every part's hash in the memo key: approval/output changes can happen in an
+    // earlier tool while the final text part remains unchanged. The previous tail-only key
+    // retained stale grouped tool state in that case.
+    val partsKey = parts.fold(1) { hash, part -> 31 * hash + part.hashCode() }
     val groupedParts = remember(partsKey) { parts.groupMessageParts() }
     groupedParts.fastForEach { block ->
         when (block) {
@@ -354,7 +353,7 @@ private fun MessagePartsBlock(
                             it.tool.approvalState is ToolApprovalState.Pending
                     }
                     ChainOfThought(
-                        modifier = Modifier.animateContentSize(),
+                        modifier = if (loading) Modifier else Modifier.animateContentSize(),
                         steps = block.steps,
                         collapsedAdaptiveWidth = isReasoningOnlyBlock,
                         forceExpanded = hasPendingApproval,
@@ -411,7 +410,7 @@ private fun MessagePartsBlock(
                         val textContent = @Composable {
                             if (role == MessageRole.USER) {
                                 Surface(
-                                    modifier = Modifier.animateContentSize(),
+                                    modifier = if (loading) Modifier else Modifier.animateContentSize(),
                                     shape = RoundedCornerShape(16.dp),
                                     color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = settings.displaySetting.bubbleOpacity),
                                     onClick = { onUserMessageClick?.invoke() },
@@ -430,7 +429,7 @@ private fun MessagePartsBlock(
                             } else {
                                 if (settings.displaySetting.showAssistantBubble) {
                                     Surface(
-                                        modifier = Modifier.animateContentSize(),
+                                        modifier = if (loading) Modifier else Modifier.animateContentSize(),
                                         shape = RoundedCornerShape(16.dp),
                                         color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = settings.displaySetting.bubbleOpacity),
                                     ) {
@@ -453,8 +452,7 @@ private fun MessagePartsBlock(
                                             visual = true,
                                         ),
                                         onClickCitation = handleClickCitation,
-                                        modifier = Modifier
-                                            .animateContentSize()
+                                        modifier = if (loading) Modifier else Modifier.animateContentSize()
                                     )
                                 }
                             }

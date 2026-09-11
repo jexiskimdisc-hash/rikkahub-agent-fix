@@ -122,6 +122,7 @@ enum class AgentRunStatus {
  * `kind` column.
  */
 enum class AgentRunKind(val wire: String) {
+    AutonomousTask("autonomous_task"),
     Cron("cron"),
     Workflow("workflow"),
     SubAgent("subagent"),

@@ -39,6 +39,7 @@ import me.rerere.rikkahub.data.ai.tools.local.clickNodeTool
 import me.rerere.rikkahub.data.ai.tools.local.downloadTool
 import me.rerere.rikkahub.data.ai.tools.local.fingerprintTool
 import me.rerere.rikkahub.data.ai.tools.local.findNodeTool
+import me.rerere.rikkahub.data.ai.tools.local.githubRepositoryTool
 import me.rerere.rikkahub.data.ai.tools.local.getBrightnessTool
 import me.rerere.rikkahub.data.ai.tools.local.getVolumeTool
 import me.rerere.rikkahub.data.ai.tools.local.globalActionTool
@@ -343,6 +344,7 @@ class LocalTools(
     private val mcpManager: me.rerere.rikkahub.data.ai.mcp.McpManager,
     private val externalAutomationConfig: me.rerere.rikkahub.automation.ExternalAutomationConfig,
     private val gitHubReleaseChecker: me.rerere.rikkahub.reliability.GitHubReleaseChecker,
+    private val gitHubRepositoryService: me.rerere.rikkahub.github.GitHubRepositoryService,
     private val bugReportBuilder: me.rerere.rikkahub.reliability.BugReportBuilder,
     private val subAgentEngine: me.rerere.rikkahub.subagent.SubAgentEngine,
     private val subAgentRegistry: me.rerere.rikkahub.subagent.SubAgentRegistry,
@@ -942,6 +944,7 @@ class LocalTools(
         if (options.contains(LocalToolOption.Reliability)) {
             tools.add(me.rerere.rikkahub.reliability.checkAppUpdatesTool(gitHubReleaseChecker))
             tools.add(me.rerere.rikkahub.reliability.generateBugReportTool(context, bugReportBuilder))
+            tools.add(githubRepositoryTool(gitHubRepositoryService))
         }
         if (options.contains(LocalToolOption.SubAgents)) {
             // Pass the caller context so the recursion guard inside SubAgentEngine.dispatch

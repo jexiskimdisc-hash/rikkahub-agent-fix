@@ -19,19 +19,16 @@ fun ImeLazyListAutoScroller(
 ) {
     val ime = WindowInsets.ime
     val localDensity = LocalDensity.current
-    var imeHeigh by remember { mutableIntStateOf(0) }
-    LaunchedEffect(Unit) {
+    var imeHeight by remember(lazyListState) { mutableIntStateOf(0) }
+    LaunchedEffect(lazyListState, localDensity) {
         snapshotFlow {
             ime.getBottom(localDensity)
         }.collect { keyboardHeight ->
             if (keyboardHeight > 0) {
-                if (imeHeigh < keyboardHeight) {
-                    lazyListState.scrollBy((keyboardHeight - imeHeigh).toFloat())
-                } else {
-                    lazyListState.scrollBy((keyboardHeight - imeHeigh).toFloat())
-                }
-                imeHeigh = keyboardHeight
+                lazyListState.scrollBy((keyboardHeight - imeHeight).toFloat())
             }
+            // Reset on close so the next open produces a real positive delta.
+            imeHeight = keyboardHeight
         }
     }
 }

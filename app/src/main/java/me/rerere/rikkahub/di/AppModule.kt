@@ -185,6 +185,7 @@ val appModule = module {
             mcpManager = get(),
             externalAutomationConfig = get(),
             gitHubReleaseChecker = get(),
+            gitHubRepositoryService = get(),
             bugReportBuilder = get(),
             subAgentEngine = get(),
             subAgentRegistry = get(),

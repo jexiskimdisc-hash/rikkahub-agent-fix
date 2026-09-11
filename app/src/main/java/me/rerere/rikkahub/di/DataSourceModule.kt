@@ -45,6 +45,14 @@ import me.rerere.rikkahub.data.network.SettingsSocks5Authenticator
 import me.rerere.rikkahub.data.sync.webdav.WebDavSync
 import me.rerere.search.SearchService
 import me.rerere.rikkahub.data.sync.S3Sync
+import me.rerere.rikkahub.github.GitHubConnector
+import me.rerere.rikkahub.github.GitHubConnectionManager
+import me.rerere.rikkahub.github.GitHubCredentialStore
+import me.rerere.rikkahub.github.GitHubDeviceAuth
+import me.rerere.rikkahub.github.GitHubAccessPolicy
+import me.rerere.rikkahub.github.GitHubGrantStore
+import me.rerere.rikkahub.github.GitHubRepositoryService
+import me.rerere.rikkahub.agent.AutonomousTaskSnapshotStore
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -126,6 +134,27 @@ val dataSourceModule = module {
     single { get<AppDatabase>().agentRunDao() }
     single { AgentRunRepository(get()) }
     single { AgentRunBootRecovery(context = get(), repository = get()) }
+    single { AutonomousTaskSnapshotStore(context = get(), json = get()) }
+
+    // GitHub is an optional first-class capability. Credentials are encrypted with Android
+    // Keystore and the connector is inert until a token is explicitly stored by the settings UI.
+    single { GitHubCredentialStore(context = get(), json = get()) }
+    single { GitHubConnector(client = get(), credentials = get(), json = get()) }
+    single { GitHubRepositoryService(api = get()) }
+    single { GitHubGrantStore(context = get(), json = get()) }
+    single { GitHubAccessPolicy { get<GitHubGrantStore>().read() } }
+    single { GitHubConnectionManager(credentials = get(), connector = get()) }
+    single {
+        GitHubDeviceAuth(
+            context = get(),
+            scope = get<AppScope>(),
+            client = get(),
+            json = get(),
+            credentials = get(),
+            connector = get(),
+            clientId = BuildConfig.GITHUB_OAUTH_CLIENT_ID,
+        )
+    }
 
     single { McpManager(settingsStore = get(), appScope = get(), filesManager = get()) }
 

@@ -156,6 +156,10 @@ object ToolApprovalDefaults {
         // check_app_updates is read-only and has no entry here.
         "generate_bug_report",
 
+        // GitHub connector — the tool can create remote issues and pull requests, so the current
+        // tool-level approval model gates the entire connector conservatively.
+        "github_repository",
+
         // Sub-agents — subagent_dispatch spawns an autonomous LLM run with the parent's
         // tool surface. Approval-required so the user sees the task + tools before
         // delegation happens. list / get / cancel are read-only or user-controlling and
@@ -290,6 +294,9 @@ object ToolApprovalDefaults {
         "keystore_decrypt",
         "nfc_write_tag",
         "grant_directory_access",
+        // GitHub combines account-scoped remote access with repository mutation. Until the
+        // per-operation approval UI is split out, never allow a blanket grant for this tool.
+        "github_repository",
     )
 
     fun allowsAlwaysAllow(toolName: String): Boolean = toolName !in NO_ALWAYS_ALLOW
